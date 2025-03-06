@@ -26,11 +26,9 @@ main:
 	ecall
 
 	# Write the just read characters to the terminal (stdout)
-	addi a2, a0, 0
-	li a7, __NR_WRITE
-	li a0, STDOUT
-	mv a1, sp
-	ecall
+	addi a1, a0, 0
+	mv a0, sp
+	call write_string
 
 	# main() epilog
 	lw ra, 100(sp)
