@@ -37,6 +37,15 @@ puts:
 
 
 putchar:
+    li a7, __NR_WRITE
+    mv t0, a0
+    li a0, STDOUT
+    la a1, buf
+    sb t0, 0(a1)
+    li a2, 1
+    ecall
+    mv a0, t0
+    ret
     
 
 
@@ -45,10 +54,10 @@ gets:
 
 
 getchar:
-	li a7, __NR_READ
-    li a0, STDIN
     la a1, buf
     li a2, 1
+    li a7, __NR_READ
+    li a0, STDIN
     ecall
     lb buf, a0
     ret
