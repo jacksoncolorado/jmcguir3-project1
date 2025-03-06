@@ -14,11 +14,9 @@ main:
 	# main() body
 
 	# Write the prompt to the terminal (stdout)
-	li a7, __NR_WRITE
-	li a0, STDOUT
-	la a1, prompt
-	addi  a2, zero, prompt_end - prompt        
-	ecall
+	la a0, prompt
+	addi  a1, zero, prompt_end - prompt        
+    call write_string
 
 	#  Read up to 100 characters from the terminal (stdin)
 	li a7, __NR_READ
@@ -42,3 +40,12 @@ main:
 .data
 prompt:   .ascii  "Enter a message: "
 prompt_end:
+
+write_string:
+    mv a2, a1
+    mv a0, a1
+    li a7, __NR_WRITE
+    li a0, STDOUT
+    ecall
+    ret
+    
