@@ -60,8 +60,19 @@ putchar:
 
 
 gets:
-	pointer you send to 'gets' will be in the buffer
+    mv t0, a0
 
+    loop2:
+        call getchar
+        sb a0, 0(t0)
+        beq a0, '\n\, finish2
+        addi, t0, t0 , 1
+        j loop
+    
+    finish2:
+        sb zero, 0(t0)
+        mv a0, t0
+        ret
 
 getchar:
     la a1, temp
@@ -79,20 +90,3 @@ getchar:
 	    temp.end
 	buff: .space 100
 		buff.end
-
-write_string:
-    mv a2, a1
-    mv a1, a0
-    li a7, __NR_WRITE
-    li a0, STDOUT
-    ecall
-    ret
-    
-read_string:
-    mv a2, a1
-    mv a1, a0
-    li a7, __NR_READ
-	li a0, STDIN
-	ecall
-	ret
-    
