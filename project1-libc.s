@@ -22,7 +22,7 @@ main:
 	call gets
 
 	# Write the just read characters to the terminal (stdout)
-	la a0, buffer
+	la a0, buff
 	call puts
 
 	# main() epilog
@@ -37,7 +37,7 @@ puts:
         lb a0, 0(t0)
         beqz a0, finish
         call putchar
-        addi, t0, t0 , 1
+        addi, t0, t0, 1
         j loop
       
     finish:
@@ -65,9 +65,9 @@ gets:
     loop2:
         call getchar
         sb a0, 0(t0)
-        beq a0, '\n\, finish2
+        beq a0, '\n', finish2
         addi, t0, t0 , 1
-        j loop
+        j loop2
     
     finish2:
         sb zero, 0(t0)
@@ -80,7 +80,7 @@ getchar:
     li a7, __NR_READ
     li a0, STDIN
     ecall
-    lb buf, a0
+    lb temp, a0
     ret
 
 .data
