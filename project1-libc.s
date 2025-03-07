@@ -31,7 +31,20 @@ main:
 	ret
 	
 puts:
-
+    mv t0, a0
+    
+    loop:
+        lb a0, 0(t0)
+        beqz a0, finish
+        call putchar
+        addi, t0, t0 , 1
+        j loop
+      
+    finish:
+        li a0, '\n'
+        call putchar
+        li a0, 0 
+        ret
 
 putchar:
     li a7, __NR_WRITE
