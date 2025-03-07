@@ -15,18 +15,15 @@ main:
 
 	# Write the prompt to the terminal (stdout)
 	la a0, prompt
-	addi  a1, zero, prompt_end - prompt        
-    call write_string
+    call puts
 
 	#  Read up to 100 characters from the terminal (stdin)
-	mv a1, sp
-	addi a2, zero, 100
-	call read_string
+	la a0, buffer
+	call gets
 
 	# Write the just read characters to the terminal (stdout)
-	mv a1, a0
-	mv a0, sp
-	call write_string
+	la a0, buffer
+	call puts
 
 	# main() epilog
 	lw ra, 100(sp)
@@ -40,7 +37,7 @@ putchar:
     li a7, __NR_WRITE
     mv t0, a0
     li a0, STDOUT
-    la a1, buf
+    la a1, temp
     sb t0, 0(a1)
     li a2, 1
     ecall
@@ -54,7 +51,7 @@ gets:
 
 
 getchar:
-    la a1, buf
+    la a1, temp
     li a2, 1
     li a7, __NR_READ
     li a0, STDIN
@@ -65,7 +62,9 @@ getchar:
 .data
 	prompt: .ascii "Enter a message"
 		prompt.end
-	buff: .space 1
+	temp: .space 1
+	    temp.end
+	buff: .space 100
 		buff.end
 
 write_string:
