@@ -7,47 +7,48 @@
 
 .text
 main:
-	# main() prolog
-	addi sp, sp, -104
-	sw ra, 100(sp)
+    # main() prolog
+    addi sp, sp, -104
+    sw ra, 100(sp)
 
-	# main() body
+    # main() body
 
-	# Write the prompt to the terminal (stdout)
-	la a0, prompt	# Put string pointer ( prompt ) into a0
-        call puts	# Call puts
+    # Write the prompt to the terminal (stdout)
+    la a0, prompt	# Put string pointer ( prompt ) into a0
+    call puts	# Call puts
 
-	#  Read up to 100 characters from the terminal (stdin)
-	la a0, buffer	# Put address pointer ( buf ) into a0
-	call gets	# Call gets
+    #  Read up to 100 characters from the terminal (stdin)
+    la a0, buff	# Put address pointer ( buf ) into a0
+    call gets	# Call gets
 
-	# Write the just read characters to the terminal (stdout)
-	la a0, buff	# Put string pointer ( buf ) into a0
-	call puts	# Call puts
+    # Write the just read characters to the terminal (stdout)
+    la a0, buff	# Put string pointer ( buf ) into a0
+    call puts	# Call puts
+    
+    # main() epilog
+    lw ra, 100(sp)
+    addi sp, sp, 104
+ret
 
-	# main() epilog
-	lw ra, 100(sp)
-	addi sp, sp, 104
-	ret
 halt :
-	ebreak
-	j halt 	# stop execution
+    ebreak
+    j halt 	# stop execution
 	
 puts:
-	// prolog
-	addi sp, sp, -12
-	sw ra, 8(sp)	# push ra
-	sw t0, 4(sp)	# push t0
-	sw a0, 0(sp)	# push a0
+    // prolog
+    addi sp, sp, -12
+    sw ra, 8(sp)	# push ra
+    sw t0, 4(sp)	# push t0
+    sw a0, 0(sp)	# push a0
 
     mv t0, a0
     
     puts_loop:
-        lb a0, 0(t0)
+	lb a0, 0(t0)
         beqz a0, puts_finish
         call putchar
 	blti a0, 0, puts_error
-        addi, t0, t0, 1
+        addi t0, t0, 1
         j puts_loop
 
 	# Error branch ( a0 < 0)
@@ -60,15 +61,15 @@ puts:
         call putchar
         li a0, 0 
 	
-// epilog
-lw a0, 0(sp)	# pop a0
+	// epilog
+	lw a0, 0(sp)	# pop a0
 
 # epilogue without a0
 epil_error:
 
-	lw ra, 8(sp)	# push ra
-	lw t0, 4(sp)	# push t0
-	addi sp, sp, 12
+    lw ra, 8(sp)	# push ra
+    lw t0, 4(sp)	# push t0
+    addi sp, sp, 12
 
 ret
 
@@ -103,13 +104,13 @@ putchar:
 ret
 
 gets:
-// Prolog
-addi sp, sp, -12 # make room for 3 items on the stack
-sw ra, 8(sp)	# save ra 
-sw a0, 4(sp)	# a0 ( original s pointer )
+    // Prolog
+    addi sp, sp, -12 # make room for 3 items on the stack
+    sw ra, 8(sp)	# save ra 
+    sw a0, 4(sp)	# a0 ( original s pointer )
 
-// Body
-mv t0, a0	# move a0 into t0 ( use t0 for local pointer p )
+    // Body
+    mv t0, a0	# move a0 into t0 ( use t0 for local pointer p )
 
 gets_loop:
     // do-while body
@@ -137,18 +138,21 @@ gets_exit:
 ret
 
 getchar:
-    la a1, temp
-    li a2, 1
-    li a7, __NR_READ
-    li a0, STDIN
+    // Body
+    addi sp, sp, -4	# adjust sp for 1 word ( we will use stack pointer as address to give the ecall )
+    sw x0 , 0(sp)	# zero - out the memory address that sp is pointing to ( sw x0 , 0( sp ) )
+    li a0, STDIN	# Put STDIN code into a0
+    mv a1, sp	# Put sp into a1 // a place to store the read - in char
+    li a2, 1	# Put value 1 into a2 // read in one byte
+    li a7, __NR_READ	# Put NR_READ code into a7
     ecall
-    lb temp, a0
-    ret
+    lw a0, 0(sp)	# load * sp into a0 ( using lw ) // return ascii value
+    addi sp, sp, 4	# restore sp
+
+ret
 
 .data
-	prompt: .ascii "Enter a message"
-		prompt.end
-	temp: .space 1
-	    temp.end
-	buff: .space 100
-		buff.end
+    prompt: .asciiz "Enter a message"
+    prompt_end:
+    buff: .space 100
+    buff_end:
