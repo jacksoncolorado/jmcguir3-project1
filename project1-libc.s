@@ -34,11 +34,11 @@ halt :
 	j halt 	# stop execution
 	
 puts:
-// prolog
-addi sp, sp, -12
-sw ra, 8(sp)	# push ra
-sw t0, 4(sp)	# push t0
-sw a0, 0(sp)	# push a0
+	// prolog
+	addi sp, sp, -12
+	sw ra, 8(sp)	# push ra
+	sw t0, 4(sp)	# push t0
+	sw a0, 0(sp)	# push a0
 
     mv t0, a0
     
@@ -73,30 +73,23 @@ epil_error:
 ret
 
 putchar:
-// prolog
-// push ra
-// push a7
-// push t0
-// push a1
-// push a2
+    // prolog
+    addi sp, sp, -1
+    sb a0, 0(sp)	# push a0
 
-    li a7, __NR_WRITE
-    mv t0, a0
-    li a0, STDOUT
-    la a1, temp
-    sb t0, 0(a1)
-    li a2, 1
+    li a0, STDOUT	# Put STDOUT code into a0
+    la a1, sp	# Put sp into a1 // pointer to input char
+    li a2, 1	# Put value 1 into a2 // write 1 byte
+    li a7, __NR_WRITE	# Put NR_WRITE code into a7
     ecall
-    mv a0, t0
-    ret
 
-// epilog
-// push a2
-// push a1
-// push t0
-// push a7
-// push ra
 
+    // epilog
+    lbu a0, 0(a1)	# load ( byte value ) of * sp back into a0 ( using lbu )
+    lb a0, 0(sp)	# push a0
+    addi sp, sp, 1	# restore sp
+
+ret
 
 gets:
 # Prolog : a0 contains addr pointer s
